@@ -11,14 +11,31 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Services
+// ====================================================
+// 1. SERVICES (Configurarea serviciilor)
+// ====================================================
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
+// --- CONFIGURARE CORS (ESENȚIAL PENTRU FRONTEND) ---
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000") // Adresa site-ului tău Next.js
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+// ---------------------------------------------------
+
+// Adăugăm Layerele aplicației
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
+// Configurare JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -36,6 +53,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 
 builder.Services.AddAuthorization();
+
+// Configurare Swagger (pentru testare și Auth)
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "La Samsari API", Version = "v1" });
@@ -66,23 +85,24 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
-
 var app = builder.Build();
 
-// Create DB (DEV ONLY)
+// ====================================================
+// 2. INITIALIZARE BAZĂ DE DATE (Seed Data)
+// ====================================================
 
+// Creare automată a bazei de date dacă nu există
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    db.Database.EnsureCreated(); // Asta crează tabelele automat
 }
 
+// Creare automată Admin dacă nu există
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // verificăm dacă există deja admin
     var adminExists = db.UserProfiles.Any(u => u.Role == UserRole.Admin);
 
     if (!adminExists)
@@ -110,24 +130,24 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// ====================================================
+// 3. PIPELINE (Ordinea de execuție a cererilor)
+// ====================================================
 
-
-
-
-
-
-
-// Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// --- ACTIVARE CORS (Trebuie să fie înainte de Auth) ---
+app.UseCors("AllowFrontend"); 
+// -----------------------------------------------------
+
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.MapControllers();
 

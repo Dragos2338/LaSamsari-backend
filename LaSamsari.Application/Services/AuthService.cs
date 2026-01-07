@@ -80,7 +80,14 @@ public class AuthService : IAuthService
 
         return new AuthResultDto
         {
-            Token = new JwtSecurityTokenHandler().WriteToken(token)
+            Token = new JwtSecurityTokenHandler().WriteToken(token),
+            User = new UserResponseDto
+            {
+                Email = user.Auth.Email,
+                Role = user.Role.ToString(),
+                Nume = user.Nume,
+                Prenume = user.Prenume
+            }
         };
     }
 }

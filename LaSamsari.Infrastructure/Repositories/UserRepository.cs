@@ -18,7 +18,14 @@ public class UserRepository : IUserRepository
     {
         return await _db.UserProfiles
             .Include(u => u.Auth)
-            .FirstOrDefaultAsync(u => u.Auth.Email == email);
+            .FirstOrDefaultAsync(u => u.Auth.Email.ToLower() == email.ToLower());
+    }
+
+    public async Task<List<UserProfile>> GetAllAsync()
+    {
+        return await _db.UserProfiles
+            .Include(u => u.Auth)
+            .ToListAsync();
     }
 
     public async Task<UserProfile> CreateAsync(UserProfile profile, string passwordHash)
