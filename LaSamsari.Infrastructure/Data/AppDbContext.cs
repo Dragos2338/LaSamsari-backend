@@ -45,6 +45,13 @@ public class AppDbContext : DbContext
             .WithMany(m => m.Cars)
             .HasForeignKey(c => c.CarModelId);
 
+        // UserProfile -> Car (1-N)
+        modelBuilder.Entity<Car>()
+            .HasOne(c => c.User)
+            .WithMany(u => u.Cars)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Car <-> Feature (N-N)
         modelBuilder.Entity<CarFeature>()
             .HasKey(cf => new { cf.CarId, cf.FeatureId });

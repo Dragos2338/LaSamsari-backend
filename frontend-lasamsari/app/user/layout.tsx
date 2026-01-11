@@ -11,7 +11,8 @@ import {
     UserCircle2,
     Heart,
     Settings,
-    Bell
+    Bell,
+    ShieldCheck
 } from 'lucide-react';
 
 export default function UserLayout({
@@ -50,15 +51,44 @@ export default function UserLayout({
 
                     <nav className="hidden md:flex items-center gap-8">
                         <Link href="/" className="text-sm font-bold text-gray-500 hover:text-blue-900 transition-colors">Piața Auto</Link>
-                        <Link href="/user" className="text-sm font-bold text-blue-900">Dashboard</Link>
-                        <Link href="/user/my-cars" className="text-sm font-bold text-gray-500 hover:text-blue-900 transition-colors">Mașinile Mele</Link>
+                        <Link href="/user" className="text-sm font-bold text-blue-900">Anunțuri Recente</Link>
                     </nav>
 
                     <div className="flex items-center gap-4">
-                        <button className="p-2 text-gray-400 hover:text-blue-900 transition-colors relative">
-                            <Bell size={22} />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
-                        </button>
+                        {/* Notifications Dropdown */}
+                        <div className="group relative">
+                            <button className="p-2 text-gray-400 hover:text-blue-900 transition-colors relative">
+                                <Bell size={22} />
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
+                            </button>
+                            <div className="absolute right-0 mt-3 w-80 bg-white rounded-[32px] shadow-2xl border border-gray-100 p-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                <h3 className="text-lg font-black text-blue-900 mb-4">Notificări</h3>
+                                <div className="space-y-4">
+                                    <div className="flex gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-colors">
+                                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 flex-shrink-0">
+                                            <Bell size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900">Bun venit pe platformă!</p>
+                                            <p className="text-xs text-gray-500">Acum poți publica primul tău anunț.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-colors">
+                                        <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 flex-shrink-0">
+                                            <ShieldCheck size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900">Cont verificat</p>
+                                            <p className="text-xs text-gray-500">Documentele tale au fost aprobate.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button className="w-full mt-6 py-3 text-sm font-black text-blue-600 hover:bg-blue-50 rounded-xl transition-colors">
+                                    Vezi toate notificările
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="h-8 w-px bg-gray-100 mx-2"></div>
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
@@ -69,7 +99,7 @@ export default function UserLayout({
                                 <button className="w-11 h-11 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl flex items-center justify-center text-blue-900 border border-blue-100 hover:shadow-lg transition-all">
                                     <User size={22} />
                                 </button>
-                                <div className="absolute right-0 mt-3 w-56 bg-white rounded-3xl shadow-2xl border border-gray-100 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                                <div className="absolute right-0 mt-3 w-56 bg-white rounded-3xl shadow-2xl border border-gray-100 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                                     <Link href="/user/profile" className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50 text-gray-600 transition-colors">
                                         <UserCircle2 size={18} />
                                         <span className="text-sm font-bold">Profilul meu</span>

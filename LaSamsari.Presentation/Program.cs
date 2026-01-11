@@ -92,11 +92,11 @@ var app = builder.Build();
 // ====================================================
 
 // Creare automată a bazei de date dacă nu există
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated(); // Asta crează tabelele automat
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//     db.Database.EnsureCreated(); // Asta crează tabelele automat
+// }
 
 // Creare automată Admin dacă nu există
 using (var scope = app.Services.CreateScope())
@@ -130,6 +130,114 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Creare automată Brand-uri și Modele dacă nu există
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (!db.Brands.Any())
+    {
+        var brands = new List<Brand>
+        {
+            new Brand { Name = "BMW", CarModels = new List<CarModel> {
+                new CarModel { Name = "Seria 3", LaunchYear = new DateOnly(2019, 1, 1) },
+                new CarModel { Name = "Seria 5", LaunchYear = new DateOnly(2020, 1, 1) },
+                new CarModel { Name = "X5", LaunchYear = new DateOnly(2021, 1, 1) }
+            }},
+            new Brand { Name = "Audi", CarModels = new List<CarModel> {
+                new CarModel { Name = "A4", LaunchYear = new DateOnly(2018, 1, 1) },
+                new CarModel { Name = "A6", LaunchYear = new DateOnly(2019, 1, 1) },
+                new CarModel { Name = "Q7", LaunchYear = new DateOnly(2020, 1, 1) }
+            }},
+            new Brand { Name = "Volkswagen", CarModels = new List<CarModel> {
+                new CarModel { Name = "Golf", LaunchYear = new DateOnly(2020, 1, 1) },
+                new CarModel { Name = "Passat", LaunchYear = new DateOnly(2019, 1, 1) },
+                new CarModel { Name = "Tiguan", LaunchYear = new DateOnly(2021, 1, 1) }
+            }},
+            new Brand { Name = "Skoda", CarModels = new List<CarModel> {
+                new CarModel { Name = "Octavia", LaunchYear = new DateOnly(2020, 1, 1) },
+                new CarModel { Name = "Superb", LaunchYear = new DateOnly(2019, 1, 1) },
+                new CarModel { Name = "Kodiaq", LaunchYear = new DateOnly(2021, 1, 1) }
+            }},
+            new Brand { Name = "Mercedes-Benz", CarModels = new List<CarModel> {
+                new CarModel { Name = "C-Class", LaunchYear = new DateOnly(2021, 1, 1) },
+                new CarModel { Name = "E-Class", LaunchYear = new DateOnly(2020, 1, 1) },
+                new CarModel { Name = "GLE", LaunchYear = new DateOnly(2022, 1, 1) }
+            }},
+            new Brand { Name = "Volvo", CarModels = new List<CarModel> {
+                new CarModel { Name = "S60", LaunchYear = new DateOnly(2019, 1, 1) },
+                new CarModel { Name = "XC60", LaunchYear = new DateOnly(2020, 1, 1) },
+                new CarModel { Name = "XC90", LaunchYear = new DateOnly(2021, 1, 1) }
+            }},
+            new Brand { Name = "Dacia", CarModels = new List<CarModel> {
+                new CarModel { Name = "Logan", LaunchYear = new DateOnly(2021, 1, 1) },
+                new CarModel { Name = "Duster", LaunchYear = new DateOnly(2022, 1, 1) },
+                new CarModel { Name = "Jogger", LaunchYear = new DateOnly(2023, 1, 1) }
+            }},
+            new Brand { Name = "Ford", CarModels = new List<CarModel> {
+                new CarModel { Name = "Focus", LaunchYear = new DateOnly(2019, 1, 1) },
+                new CarModel { Name = "Fiesta", LaunchYear = new DateOnly(2018, 1, 1) },
+                new CarModel { Name = "Kuga", LaunchYear = new DateOnly(2020, 1, 1) }
+            }}
+        };
+
+        db.Brands.AddRange(brands);
+        db.SaveChanges();
+    }
+    }
+}
+
+// Creare automată Mașini (pentru a avea date in dashboard)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (!db.Cars.Any())
+    {
+        // Preluam ID-urile pentru referinta (presupunand ca au fost create mai sus sau exista)
+        var bmwSeria3 = db.CarModels.Include(m => m.Brand).FirstOrDefault(m => m.Name == "Seria 3" && m.Brand.Name == "BMW");
+        var audiA4 = db.CarModels.Include(m => m.Brand).FirstOrDefault(m => m.Name == "A4" && m.Brand.Name == "Audi");
+        var vwGolf = db.CarModels.Include(m => m.Brand).FirstOrDefault(m => m.Name == "Golf" && m.Brand.Name == "Volkswagen");
+        
+        if (bmwSeria3 != null) {
+            db.Cars.Add(new Car {
+                CarModelId = bmwSeria3.Id,
+                Year = 2019,
+                Km = 198000,
+                Price = 31000,
+                Fuel = "Diesel",
+                Transmission = "Automată",
+                Status = CarStatus.Available
+            });
+        }
+        
+        if (audiA4 != null) {
+            db.Cars.Add(new Car {
+                CarModelId = audiA4.Id,
+                Year = 2020,
+                Km = 125000,
+                Price = 24500,
+                Fuel = "Benzină",
+                Transmission = "Automată",
+                Status = CarStatus.Available
+            });
+        }
+        
+        if (vwGolf != null) {
+             db.Cars.Add(new Car {
+                CarModelId = vwGolf.Id,
+                Year = 2021,
+                Km = 45000,
+                Price = 19900,
+                Fuel = "Hibrid",
+                Transmission = "Automată",
+                Status = CarStatus.Available
+            });
+        }
+
+        db.SaveChanges();
+    }
+}
+
 // ====================================================
 // 3. PIPELINE (Ordinea de execuție a cererilor)
 // ====================================================
@@ -144,7 +252,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowFrontend"); 
 // -----------------------------------------------------
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Dezactivat pentru dezvoltare locală ca să evităm problemele de certificat SSL (net::ERR_CERT_AUTHORITY_INVALID)
 
 app.UseAuthentication();
 app.UseAuthorization();

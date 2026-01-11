@@ -17,29 +17,44 @@ public class CarsController : ControllerBase
     }
 
     // 🔓 PUBLIC
-[HttpGet]
-public async Task<IActionResult> GetAll()
-    => Ok(await _service.GetAllAsync());
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+        => Ok(await _service.GetAllAsync());
 
-// 🔒 ADMIN
-[Authorize(Roles = "Admin")]
-[HttpPost]
-public async Task<IActionResult> Create(CreateCarDto dto)
-    => Ok(await _service.CreateAsync(dto));
+    // 🔒 USER / ADMIN
+    [Authorize]
+    [HttpGet("my-cars")]
+    public async Task<IActionResult> GetMyCars()
+    {
+        var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+        return Ok(await _service.GetMyCarsAsync(userId));
+    }
 
-// 🔒 ADMIN – PATCH
-[Authorize(Roles = "Admin")]
-[HttpPatch("{id}")]
-public async Task<IActionResult> Patch(int id, PatchCarDto dto)
-    => Ok(await _service.PatchAsync(id, dto));
+    // 🔒 USER / ADMIN
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateCarDto dto)
+    {
+        int? userId = null;
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (claim != null) userId = int.Parse(claim.Value);
 
-// 🔒 ADMIN – DELETE
-[Authorize(Roles = "Admin")]
-[HttpDelete("{id}")]
-public async Task<IActionResult> Delete(int id)
-{
-    await _service.DeleteAsync(id);
-    return NoContent();
-}
+        return Ok(await _service.CreateAsync(dto, userId));
+    }
+
+    // 🔒 ADMIN – PATCH
+    [Authorize(Roles = "Admin")]
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> Patch(int id, PatchCarDto dto)
+        => Ok(await _service.PatchAsync(id, dto));
+
+    // 🔒 ADMIN – DELETE
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _service.DeleteAsync(id);
+        return NoContent();
+    }
 
 }

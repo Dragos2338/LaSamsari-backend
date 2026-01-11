@@ -15,4 +15,9 @@ public class Car
     public string Transmission { get; set; } = null!;
 
     public ICollection<CarFeature> CarFeatures { get; set; } = new List<CarFeature>();
+
+    public int? UserId { get; set; }
+    public UserProfile? User { get; set; }
+
+    public CarStatus Status { get; set; } = CarStatus.Available;
 }

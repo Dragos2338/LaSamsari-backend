@@ -58,7 +58,7 @@ export default function AdminDashboard() {
     const statCards = [
         { title: 'Total Mașini', value: stats.totalCars, icon: Car, color: 'bg-blue-500', trend: '+12%', isUp: true },
         { title: 'Utilizatori', value: stats.totalUsers, icon: Users, color: 'bg-purple-500', trend: '+5%', isUp: true },
-        { title: 'Volum Vânzări', value: `${stats.totalSales.toLocaleString()} €`, icon: Wallet, color: 'bg-green-500', trend: '-2%', isUp: false },
+        { title: 'Volum Vânzări', value: `${(stats.totalSales || 0).toLocaleString()} €`, icon: Wallet, color: 'bg-green-500', trend: '-2%', isUp: false },
         { title: 'Anunțuri Active', value: stats.activeListings, icon: TrendingUp, color: 'bg-orange-500', trend: '+18%', isUp: true },
     ];
 

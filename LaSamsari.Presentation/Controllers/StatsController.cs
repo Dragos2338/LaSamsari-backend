@@ -1,37 +1,43 @@
-using LaSamsari.Application.Interfaces.Repositories;
-using Microsoft.AspNetCore.Authorization;
+using LaSamsari.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LaSamsari.Presentation.Controllers;
 
 [ApiController]
-[Route("api/stats")]
-[Authorize(Roles = "Admin")]
+[Route("api/[controller]")]
 public class StatsController : ControllerBase
 {
-    private readonly ICarRepository _carRepo;
-    private readonly IUserRepository _userRepo;
+    private readonly AppDbContext _context;
 
-    public StatsController(ICarRepository carRepo, IUserRepository userRepo)
+    public StatsController(AppDbContext context)
     {
-        _carRepo = carRepo;
-        _userRepo = userRepo;
+        _context = context;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetStats()
     {
-        var cars = await _carRepo.GetAllAsync();
-        var users = await _userRepo.GetAllAsync();
+        var totalUsers = await _context.UserProfiles.CountAsync();
+        var totalCars = await _context.Cars.CountAsync();
+        var totalInventoryValue = await _context.Cars
+            .Where(c => c.Status == Domain.Entities.CarStatus.Available)
+            .SumAsync(c => c.Price);
+        
+        // Calculăm distribuția pe brand-uri
+        var carsByBrand = await _context.Cars
+            .Include(c => c.CarModel)
+            .ThenInclude(m => m.Brand)
+            .GroupBy(c => c.CarModel.Brand.Name)
+            .Select(g => new { Brand = g.Key, Count = g.Count() })
+            .ToListAsync();
 
-        var stats = new
+        return Ok(new
         {
-            TotalCars = cars.Count,
-            TotalUsers = users.Count,
-            ActiveListings = cars.Count, // For now, all cars are active
-            TotalSalesValue = cars.Sum(c => c.Price)
-        };
-
-        return Ok(stats);
+            TotalUsers = totalUsers,
+            TotalCars = totalCars,
+            TotalInventoryValue = totalInventoryValue,
+            CarsByBrand = carsByBrand
+        });
     }
 }

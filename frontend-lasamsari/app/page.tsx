@@ -35,6 +35,27 @@ export default function Home() {
     fetchCars();
   }, []);
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const getCarImage = (brand: string) => {
+    const images: any = {
+      'BMW': 'https://images.unsplash.com/photo-1555215695-3004980adade?auto=format&fit=crop&w=1200&q=90',
+      'Audi': 'https://images.unsplash.com/photo-1606152421802-db971dfc674f?auto=format&fit=crop&w=1200&q=90',
+      'Mercedes-Benz': 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=90',
+      'Volkswagen': 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=90',
+      'Volvo': 'https://images.unsplash.com/photo-1580274455191-1c62238fa333?auto=format&fit=crop&w=1200&q=90',
+      'Ford': 'https://images.unsplash.com/photo-1514316454349-750a7fd3da3a?auto=format&fit=crop&w=1200&q=90',
+      'Toyota': 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=1200&q=90',
+      'Porsche': 'https://images.unsplash.com/photo-1503376763036-066120622c74?auto=format&fit=crop&w=1200&q=90'
+    };
+    return images[brand] || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=90';
+  };
+
+  const filteredCars = cars.filter(car =>
+    car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    car.model.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -117,7 +138,13 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="text" placeholder="Caută model..." className="pl-12 pr-6 py-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:bg-white focus:border-blue-500 transition-all font-medium" />
+              <input
+                type="text"
+                placeholder="Caută model..."
+                className="pl-12 pr-6 py-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:bg-white focus:border-blue-500 transition-all font-medium"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
         </div>
@@ -130,12 +157,17 @@ export default function Home() {
           <div className="bg-red-50 text-red-600 p-8 rounded-[32px] text-center border border-red-100">
             ⚠️ {error}. Asigură-te că serverul este pornit.
           </div>
+        ) : filteredCars.length === 0 ? (
+          <div className="text-center py-20 bg-gray-50 rounded-[40px]">
+            <Search size={48} className="text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 font-bold">Nu am găsit rezultate pentru "{searchTerm}"</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {cars.map((car) => (
+            {filteredCars.map((car) => (
               <div key={car.id} className="group bg-white rounded-[40px] border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden">
                 <div className="h-64 bg-gray-100 relative overflow-hidden">
-                  <img src={`https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={car.model} />
+                  <img src={getCarImage(car.brand)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={car.model} />
                   <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl text-xs font-black text-blue-900 shadow-sm">
                     {car.year}
                   </div>
@@ -151,7 +183,7 @@ export default function Home() {
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Preț Final</p>
                       <p className="text-3xl font-black text-blue-900">{car.price.toLocaleString()} €</p>
                     </div>
-                    <Link href={`/login`} className="w-14 h-14 bg-gray-50 flex items-center justify-center rounded-2xl text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-all transform active:scale-95">
+                    <Link href={`/cars/${car.id}`} className="w-14 h-14 bg-gray-50 flex items-center justify-center rounded-2xl text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-all transform active:scale-95">
                       <ArrowRight size={24} />
                     </Link>
                   </div>

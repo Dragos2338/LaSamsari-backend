@@ -8,4 +8,5 @@ public class CreateCarDto
     public decimal Price { get; set; }
     public string Fuel { get; set; } = null!;
     public string Transmission { get; set; } = null!;
+    public int Status { get; set; } = 0; // 0=Available, 1=Pending, 2=Sold
 }

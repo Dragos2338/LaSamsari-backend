@@ -14,5 +14,9 @@ public class UserProfile
     public UserRole Role { get; set; }
 
     // navigare 1-1
+    // navigare 1-1
     public UserAuth Auth { get; set; } = null!;
+
+    // navigare 1-N
+    public ICollection<Car> Cars { get; set; } = new List<Car>();
 }

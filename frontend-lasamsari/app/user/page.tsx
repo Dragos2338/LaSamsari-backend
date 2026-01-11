@@ -100,10 +100,10 @@ export default function UserDashboard() {
                     {loading ? (
                         [1, 2, 3, 4].map(i => <div key={i} className="h-80 bg-gray-100 rounded-[32px] animate-pulse"></div>)
                     ) : recentCars.map((car) => (
-                        <div key={car.id} className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl transition-all">
+                        <Link href={`/cars/${car.id}`} key={car.id} className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl transition-all cursor-pointer block">
                             <div className="h-48 bg-gray-100 relative overflow-hidden">
                                 <img
-                                    src={`https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=600&q=80`}
+                                    src="https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=600&q=80"
                                     alt={car.model}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
@@ -126,7 +126,7 @@ export default function UserDashboard() {
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </section>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5091/api', // Ajustează portul dacă este necesar
+  baseURL: 'http://localhost:5091/api', // Dezactivat HTTPS redirection în backend, folosim portul non-SSL 5091
   headers: {
     'Content-Type': 'application/json',
   },
@@ -24,8 +24,9 @@ api.interceptors.response.use((response) => {
 }, (error) => {
   if (error.response && (error.response.status === 401 || error.response.status === 403)) {
     // Dacă primim 401 sau 403, putem redirecta utilizatorul la login sau curăța starea
-    // localStorage.removeItem('token');
-    // window.location.href = '/login';
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
   }
   return Promise.reject(error);
 });

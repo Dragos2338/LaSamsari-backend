@@ -113,10 +113,26 @@ export default function AdminLayout({
                 <header className="h-24 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-10 sticky top-0 z-20">
                     <h2 className="text-xl font-bold text-gray-900">Bun venit înapoi, Administrator!</h2>
                     <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
-                            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
-                                <Users size={20} />
+                        <div className="group relative">
+                            <button className="relative outline-none">
+                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                                <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-900 hover:bg-blue-100 transition-colors">
+                                    <Users size={20} />
+                                </div>
+                            </button>
+                            {/* Dropdown Menu */}
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 p-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 transform origin-top-right">
+                                <div className="px-4 py-2 border-b border-gray-50">
+                                    <p className="text-sm font-bold text-gray-900">Admin</p>
+                                    <p className="text-xs text-gray-500">System Administrator</p>
+                                </div>
+                                <button
+                                    onClick={logout}
+                                    className="w-full flex items-center gap-2 px-4 py-2 mt-1 rounded-lg hover:bg-red-50 text-red-600 transition-colors text-sm font-medium"
+                                >
+                                    <LogOut size={16} />
+                                    Deconectare
+                                </button>
                             </div>
                         </div>
                     </div>

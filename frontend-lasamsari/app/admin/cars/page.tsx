@@ -21,6 +21,8 @@ interface Car {
     year: number;
     km: number;
     price: number;
+    fuel: string;
+    transmission: string;
 }
 
 interface Brand {
@@ -290,8 +292,8 @@ export default function AdminCarsPage() {
                                     <input
                                         type="number"
                                         className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-blue-500 transition-all"
-                                        value={formData.year}
-                                        onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                                        value={formData.year || ''}
+                                        onChange={(e) => setFormData({ ...formData, year: e.target.value ? parseInt(e.target.value) : 0 })}
                                         required
                                     />
                                 </div>
@@ -300,8 +302,8 @@ export default function AdminCarsPage() {
                                     <input
                                         type="number"
                                         className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-blue-500 transition-all"
-                                        value={formData.km}
-                                        onChange={(e) => setFormData({ ...formData, km: parseInt(e.target.value) })}
+                                        value={formData.km || ''}
+                                        onChange={(e) => setFormData({ ...formData, km: e.target.value ? parseInt(e.target.value) : 0 })}
                                         required
                                     />
                                 </div>
@@ -310,8 +312,8 @@ export default function AdminCarsPage() {
                                     <input
                                         type="number"
                                         className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-blue-500 transition-all font-black text-blue-900"
-                                        value={formData.price}
-                                        onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                                        value={formData.price || ''}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value ? parseFloat(e.target.value) : 0 })}
                                         required
                                     />
                                 </div>
@@ -326,6 +328,17 @@ export default function AdminCarsPage() {
                                         <option value="Diesel">Diesel</option>
                                         <option value="Hibrid">Hibrid</option>
                                         <option value="Electric">Electric</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700">Transmisie</label>
+                                    <select
+                                        className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-blue-500 transition-all"
+                                        value={formData.transmission}
+                                        onChange={(e) => setFormData({ ...formData, transmission: e.target.value })}
+                                    >
+                                        <option value="Manuală">Manuală</option>
+                                        <option value="Automată">Automată</option>
                                     </select>
                                 </div>
                             </div>

@@ -25,11 +25,35 @@ public class CarService : ICarService
             Model = c.CarModel.Name,
             Year = c.Year,
             Km = c.Km,
-            Price = c.Price
+            Km = c.Km,
+            Price = c.Price,
+            Fuel = c.Fuel,
+            Transmission = c.Transmission,
+            Status = c.Status.ToString()
         });
     }
 
-    public async Task<CarDto> CreateAsync(CreateCarDto dto)
+    public async Task<IEnumerable<CarDto>> GetMyCarsAsync(int userId)
+    {
+        var cars = await _carRepository.GetAllAsync();
+        return cars
+            .Where(c => c.UserId == userId)
+            .Select(c => new CarDto
+            {
+                Id = c.Id,
+                Brand = c.CarModel.Brand.Name,
+                Model = c.CarModel.Name,
+                Year = c.Year,
+                Km = c.Km,
+                Km = c.Km,
+                Price = c.Price,
+                Fuel = c.Fuel,
+                Transmission = c.Transmission,
+                Status = c.Status.ToString()
+            });
+    }
+
+    public async Task<CarDto> CreateAsync(CreateCarDto dto, int? userId = null)
     {
         var car = new Car
         {
@@ -38,7 +62,9 @@ public class CarService : ICarService
             Km = dto.Km,
             Price = dto.Price,
             Fuel = dto.Fuel,
-            Transmission = dto.Transmission
+            Transmission = dto.Transmission,
+            Status = (CarStatus)dto.Status,
+            UserId = userId
         };
 
         await _carRepository.AddAsync(car);
@@ -52,7 +78,11 @@ public class CarService : ICarService
             Model = created.CarModel.Name,
             Year = created.Year,
             Km = created.Km,
-            Price = created.Price
+            Km = created.Km,
+            Price = created.Price,
+            Fuel = created.Fuel,
+            Transmission = created.Transmission,
+            Status = created.Status.ToString()
         };
     }
 
@@ -82,7 +112,10 @@ public class CarService : ICarService
         Model = car.CarModel.Name,
         Year = car.Year,
         Km = car.Km,
-        Price = car.Price
+        Km = car.Km,
+        Price = car.Price,
+        Fuel = car.Fuel,
+        Transmission = car.Transmission
     };
 }
 
