@@ -17,6 +17,8 @@ public class AppDbContext : DbContext
     public DbSet<Car> Cars => Set<Car>();
     public DbSet<Feature> Features => Set<Feature>();
     public DbSet<CarFeature> CarFeatures => Set<CarFeature>();
+    public DbSet<FuelType> FuelTypes => Set<FuelType>();
+    public DbSet<TransmissionType> TransmissionTypes => Set<TransmissionType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,6 +53,20 @@ public class AppDbContext : DbContext
             .WithMany(u => u.Cars)
             .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Car -> FuelType
+        modelBuilder.Entity<Car>()
+            .HasOne(c => c.FuelType)
+            .WithMany(ft => ft.Cars)
+            .HasForeignKey(c => c.FuelTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Car -> TransmissionType
+        modelBuilder.Entity<Car>()
+            .HasOne(c => c.TransmissionType)
+            .WithMany(tt => tt.Cars)
+            .HasForeignKey(c => c.TransmissionTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Car <-> Feature (N-N)
         modelBuilder.Entity<CarFeature>()

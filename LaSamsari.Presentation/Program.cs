@@ -24,7 +24,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000") // Adresa site-ului tău Next.js
+            policy.AllowAnyOrigin() // Pt debug: permite orice origine
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -92,11 +92,12 @@ var app = builder.Build();
 // ====================================================
 
 // Creare automată a bazei de date dacă nu există
-// using (var scope = app.Services.CreateScope())
-// {
-//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//     db.Database.EnsureCreated(); // Asta crează tabelele automat
-// }
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureDeleted(); // Resetare baza de date pentru a aplica schema noua
+    db.Database.EnsureCreated(); // Asta crează tabelele automat
+}
 
 // Creare automată Admin dacă nu există
 using (var scope = app.Services.CreateScope())
@@ -184,6 +185,31 @@ using (var scope = app.Services.CreateScope())
         db.Brands.AddRange(brands);
         db.SaveChanges();
     }
+}
+
+// Creare automată Combustibili și Transmisii
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (!db.FuelTypes.Any())
+    {
+        db.FuelTypes.AddRange(
+            new FuelType { Name = "Benzină" },
+            new FuelType { Name = "Diesel" },
+            new FuelType { Name = "Hibrid" },
+            new FuelType { Name = "Electric" }
+        );
+        db.SaveChanges();
+    }
+
+    if (!db.TransmissionTypes.Any())
+    {
+        db.TransmissionTypes.AddRange(
+            new TransmissionType { Name = "Manuală" },
+            new TransmissionType { Name = "Automată" }
+        );
+        db.SaveChanges();
     }
 }
 
@@ -193,19 +219,24 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (!db.Cars.Any())
     {
-        // Preluam ID-urile pentru referinta (presupunand ca au fost create mai sus sau exista)
         var bmwSeria3 = db.CarModels.Include(m => m.Brand).FirstOrDefault(m => m.Name == "Seria 3" && m.Brand.Name == "BMW");
         var audiA4 = db.CarModels.Include(m => m.Brand).FirstOrDefault(m => m.Name == "A4" && m.Brand.Name == "Audi");
         var vwGolf = db.CarModels.Include(m => m.Brand).FirstOrDefault(m => m.Name == "Golf" && m.Brand.Name == "Volkswagen");
         
+        var diesel = db.FuelTypes.First(f => f.Name == "Diesel");
+        var benzina = db.FuelTypes.First(f => f.Name == "Benzină");
+        var hibrid = db.FuelTypes.First(f => f.Name == "Hibrid");
+        
+        var automata = db.TransmissionTypes.First(t => t.Name == "Automată");
+
         if (bmwSeria3 != null) {
             db.Cars.Add(new Car {
                 CarModelId = bmwSeria3.Id,
                 Year = 2019,
                 Km = 198000,
                 Price = 31000,
-                Fuel = "Diesel",
-                Transmission = "Automată",
+                FuelTypeId = diesel.Id,
+                TransmissionTypeId = automata.Id,
                 Status = CarStatus.Available
             });
         }
@@ -216,8 +247,8 @@ using (var scope = app.Services.CreateScope())
                 Year = 2020,
                 Km = 125000,
                 Price = 24500,
-                Fuel = "Benzină",
-                Transmission = "Automată",
+                FuelTypeId = benzina.Id,
+                TransmissionTypeId = automata.Id,
                 Status = CarStatus.Available
             });
         }
@@ -228,8 +259,8 @@ using (var scope = app.Services.CreateScope())
                 Year = 2021,
                 Km = 45000,
                 Price = 19900,
-                Fuel = "Hibrid",
-                Transmission = "Automată",
+                FuelTypeId = hibrid.Id,
+                TransmissionTypeId = automata.Id,
                 Status = CarStatus.Available
             });
         }

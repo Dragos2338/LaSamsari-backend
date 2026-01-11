@@ -17,6 +17,7 @@ public class CarsController : ControllerBase
     }
 
     // 🔓 PUBLIC
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll()
         => Ok(await _service.GetAllAsync());

@@ -25,10 +25,9 @@ public class CarService : ICarService
             Model = c.CarModel.Name,
             Year = c.Year,
             Km = c.Km,
-            Km = c.Km,
             Price = c.Price,
-            Fuel = c.Fuel,
-            Transmission = c.Transmission,
+            Fuel = c.FuelType?.Name ?? "N/A",
+            Transmission = c.TransmissionType?.Name ?? "N/A",
             Status = c.Status.ToString()
         });
     }
@@ -45,10 +44,9 @@ public class CarService : ICarService
                 Model = c.CarModel.Name,
                 Year = c.Year,
                 Km = c.Km,
-                Km = c.Km,
                 Price = c.Price,
-                Fuel = c.Fuel,
-                Transmission = c.Transmission,
+                Fuel = c.FuelType?.Name ?? "N/A",
+                Transmission = c.TransmissionType?.Name ?? "N/A",
                 Status = c.Status.ToString()
             });
     }
@@ -61,8 +59,8 @@ public class CarService : ICarService
             Year = dto.Year,
             Km = dto.Km,
             Price = dto.Price,
-            Fuel = dto.Fuel,
-            Transmission = dto.Transmission,
+            FuelTypeId = dto.FuelTypeId,
+            TransmissionTypeId = dto.TransmissionTypeId,
             Status = (CarStatus)dto.Status,
             UserId = userId
         };
@@ -78,52 +76,54 @@ public class CarService : ICarService
             Model = created.CarModel.Name,
             Year = created.Year,
             Km = created.Km,
-            Km = created.Km,
             Price = created.Price,
-            Fuel = created.Fuel,
-            Transmission = created.Transmission,
+            Fuel = created.FuelType?.Name ?? "N/A",
+            Transmission = created.TransmissionType?.Name ?? "N/A",
             Status = created.Status.ToString()
         };
     }
 
     public async Task<CarDto> PatchAsync(int id, PatchCarDto dto)
-{
-    var car = await _carRepository.GetByIdAsync(id)
-        ?? throw new Exception("Car not found");
-
-    if (dto.CarModelId.HasValue)
-        car.CarModelId = dto.CarModelId.Value;
-
-    if (dto.Year.HasValue)
-        car.Year = dto.Year.Value;
-
-    if (dto.Km.HasValue)
-        car.Km = dto.Km.Value;
-
-    if (dto.Price.HasValue)
-        car.Price = dto.Price.Value;
-
-    await _carRepository.UpdateAsync(car);
-
-    return new CarDto
     {
-        Id = car.Id,
-        Brand = car.CarModel.Brand.Name,
-        Model = car.CarModel.Name,
-        Year = car.Year,
-        Km = car.Km,
-        Km = car.Km,
-        Price = car.Price,
-        Fuel = car.Fuel,
-        Transmission = car.Transmission
-    };
-}
+        var car = await _carRepository.GetByIdAsync(id)
+            ?? throw new Exception("Car not found");
+
+        if (dto.CarModelId.HasValue)
+            car.CarModelId = dto.CarModelId.Value;
+
+        if (dto.Year.HasValue)
+            car.Year = dto.Year.Value;
+
+        if (dto.Km.HasValue)
+            car.Km = dto.Km.Value;
+
+        if (dto.Price.HasValue)
+            car.Price = dto.Price.Value;
+
+        if (dto.FuelTypeId.HasValue)
+            car.FuelTypeId = dto.FuelTypeId.Value;
+
+        if (dto.TransmissionTypeId.HasValue)
+            car.TransmissionTypeId = dto.TransmissionTypeId.Value;
+
+        await _carRepository.UpdateAsync(car);
+
+        return new CarDto
+        {
+            Id = car.Id,
+            Brand = car.CarModel.Brand.Name,
+            Model = car.CarModel.Name,
+            Year = car.Year,
+            Km = car.Km,
+            Price = car.Price,
+            Fuel = car.FuelType?.Name ?? "N/A",
+            Transmission = car.TransmissionType?.Name ?? "N/A",
+            Status = car.Status.ToString()
+        };
+    }
 
     public async Task DeleteAsync(int id)
     {
         await _carRepository.DeleteAsync(id);
     }
-
-
-
 }

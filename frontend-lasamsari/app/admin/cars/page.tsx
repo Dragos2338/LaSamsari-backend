@@ -36,10 +36,23 @@ interface CarModel {
     brandId: number;
 }
 
+interface FuelType {
+    id: number;
+    name: string;
+}
+
+interface TransmissionType {
+    id: number;
+    name: string;
+}
+
 export default function AdminCarsPage() {
     const [cars, setCars] = useState<Car[]>([]);
     const [brands, setBrands] = useState<Brand[]>([]);
     const [models, setModels] = useState<CarModel[]>([]);
+    const [fuels, setFuels] = useState<FuelType[]>([]);
+    const [transmissions, setTransmissions] = useState<TransmissionType[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,14 +63,15 @@ export default function AdminCarsPage() {
         year: new Date().getFullYear(),
         km: 0,
         price: 0,
-        fuel: 'Benzină',
-        transmission: 'Manuală'
+        fuelTypeId: 0,
+        transmissionTypeId: 0
     });
     const [selectedBrandId, setSelectedBrandId] = useState('');
 
     useEffect(() => {
         fetchCars();
         fetchBrands();
+        fetchNomenclators();
     }, []);
 
     const fetchBrands = async () => {
@@ -66,6 +80,27 @@ export default function AdminCarsPage() {
             setBrands(res.data);
         } catch (err) {
             console.error("Error fetching brands:", err);
+        }
+    };
+
+    const fetchNomenclators = async () => {
+        try {
+            const [fuelsRes, transRes] = await Promise.all([
+                api.get('/nomenclators/fuels'),
+                api.get('/nomenclators/transmissions')
+            ]);
+            setFuels(fuelsRes.data);
+            setTransmissions(transRes.data);
+
+            // Set defaults if available, optional but helpful
+            if (fuelsRes.data.length > 0 && formData.fuelTypeId === 0)
+                setFormData(prev => ({ ...prev, fuelTypeId: fuelsRes.data[0].id }));
+
+            if (transRes.data.length > 0 && formData.transmissionTypeId === 0)
+                setFormData(prev => ({ ...prev, transmissionTypeId: transRes.data[0].id }));
+
+        } catch (error) {
+            console.error('Error fetching nomenclators:', error);
         }
     };
 
@@ -81,10 +116,14 @@ export default function AdminCarsPage() {
 
     const fetchCars = async () => {
         try {
-            const response = await api.get('/Cars');
+            const response = await api.get('/cars');
             setCars(response.data);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error fetching cars:", err);
+            if (err.response) {
+                console.error("Server Error Details:", err.response.data);
+                console.error("Status:", err.response.status);
+            }
         } finally {
             setLoading(false);
         }
@@ -104,27 +143,31 @@ export default function AdminCarsPage() {
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await api.post('/cars', {
-                ...formData,
+            const payload = {
                 carModelId: parseInt(formData.carModelId),
                 year: parseInt(formData.year.toString()),
                 km: parseInt(formData.km.toString()),
-                price: parseFloat(formData.price.toString())
-            });
+                price: parseFloat(formData.price.toString()),
+                fuelTypeId: Number(formData.fuelTypeId),
+                transmissionTypeId: Number(formData.transmissionTypeId),
+                status: 0 // 0=Available, 1=Pending, 2=Sold
+            };
+
+            await api.post('/cars', payload);
             setIsModalOpen(false);
             fetchCars();
             // Reset form
-            setFormData({
+            setFormData(prev => ({
+                ...prev,
                 carModelId: '',
                 year: new Date().getFullYear(),
                 km: 0,
-                price: 0,
-                fuel: 'Benzină',
-                transmission: 'Manuală'
-            });
+                price: 0
+            }));
             setSelectedBrandId('');
         } catch (err) {
             alert('Eroare la adăugarea mașinii. Verifică datele.');
+            console.error(err);
         }
     };
 
@@ -206,6 +249,7 @@ export default function AdminCarsPage() {
                                             <div className="flex flex-wrap gap-2">
                                                 <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg uppercase tracking-tighter">An {car.year}</span>
                                                 <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg uppercase tracking-tighter">{car.km.toLocaleString()} KM</span>
+                                                <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg uppercase tracking-tighter">{car.fuel}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
@@ -321,24 +365,24 @@ export default function AdminCarsPage() {
                                     <label className="text-sm font-bold text-gray-700">Combustibil</label>
                                     <select
                                         className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-blue-500 transition-all"
-                                        value={formData.fuel}
-                                        onChange={(e) => setFormData({ ...formData, fuel: e.target.value })}
+                                        value={formData.fuelTypeId}
+                                        onChange={(e) => setFormData({ ...formData, fuelTypeId: parseInt(e.target.value) })}
                                     >
-                                        <option value="Benzină">Benzină</option>
-                                        <option value="Diesel">Diesel</option>
-                                        <option value="Hibrid">Hibrid</option>
-                                        <option value="Electric">Electric</option>
+                                        {fuels.map(f => (
+                                            <option key={f.id} value={f.id}>{f.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700">Transmisie</label>
                                     <select
                                         className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-blue-500 transition-all"
-                                        value={formData.transmission}
-                                        onChange={(e) => setFormData({ ...formData, transmission: e.target.value })}
+                                        value={formData.transmissionTypeId}
+                                        onChange={(e) => setFormData({ ...formData, transmissionTypeId: parseInt(e.target.value) })}
                                     >
-                                        <option value="Manuală">Manuală</option>
-                                        <option value="Automată">Automată</option>
+                                        {transmissions.map(t => (
+                                            <option key={t.id} value={t.id}>{t.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>

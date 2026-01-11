@@ -4,4 +4,6 @@ public class PatchCarDto
     public int? Year { get; set; }
     public int? Km { get; set; }
     public decimal? Price { get; set; }
+    public int? FuelTypeId { get; set; }
+    public int? TransmissionTypeId { get; set; }
 }

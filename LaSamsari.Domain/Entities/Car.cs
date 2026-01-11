@@ -11,8 +11,11 @@ public class Car
     public int Km { get; set; }
     public decimal Price { get; set; }
 
-    public string Fuel { get; set; } = null!;
-    public string Transmission { get; set; } = null!;
+    public int FuelTypeId { get; set; }
+    public FuelType FuelType { get; set; } = null!;
+
+    public int TransmissionTypeId { get; set; }
+    public TransmissionType TransmissionType { get; set; } = null!;
 
     public ICollection<CarFeature> CarFeatures { get; set; } = new List<CarFeature>();
 

@@ -19,6 +19,8 @@ public class CarRepository : ICarRepository
         return await _db.Cars
             .Include(c => c.CarModel)
                 .ThenInclude(m => m.Brand)
+            .Include(c => c.FuelType)
+            .Include(c => c.TransmissionType)
             .ToListAsync();
     }
 
@@ -34,6 +36,8 @@ public class CarRepository : ICarRepository
     return await _db.Cars
         .Include(c => c.CarModel)
             .ThenInclude(m => m.Brand)
+        .Include(c => c.FuelType)
+        .Include(c => c.TransmissionType)
         .FirstOrDefaultAsync(c => c.Id == id);
 }
 
